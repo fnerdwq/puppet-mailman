@@ -17,7 +17,7 @@ class mailman::config {
 
   exec {'create site list':
     command   => "newlist -q ${site_list} ${mailman::site_list_admin} ${mailman::site_list_pw}",
-    unless    => "list_lists | grep -q '^${site_list}$'",
+    unless    => "list_lists -b | grep -q '^${site_list}$'",
     path      => ['/bin', '/usr/sbin'],
     require   => File['/etc/mailman/mm_cfg.py'],
   }
