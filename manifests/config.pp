@@ -46,7 +46,7 @@ class mailman::config {
     # we have to have apache included here
     include apache
 
-    file {'/var/lib/mailman/data/alias.db':
+    file {'/var/lib/mailman/data/aliases.db':
       ensure  => present,
       owner   => 'www-data',
       group   => 'list',
