@@ -42,12 +42,16 @@ class mailman::config {
   # ensure correct right's on alias.db, otherwise mailman website cannot
   # create lists (bug in Debian?
   if $mta == 'Postfix' {
+
+    # we have to have apache included here
+    include apache
+
     file {'/var/lib/mailman/data/alias.db':
-      ensure => present,
-      owner  => 'www-data',
-      group  => 'list',
-      mode   => '0660',
-      rquire => Exec['create site list'],
+      ensure  => present,
+      owner   => 'www-data',
+      group   => 'list',
+      mode    => '0660',
+      require => [ Exec['create site list'], Class['apache'] ],
     }
   }
 
