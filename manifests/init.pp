@@ -36,8 +36,16 @@
 #   *Optional* (defaults to root@$::fqdn)
 #
 # [*site_list_pw*]
-#   Site liste password.
+#   Site list password.
 #   *Optional* (defaults to initial)
+#
+# [*master_list_pw*]
+#   Master list password.
+#   *Optional* (defaults to master)
+#
+# [*crate_list_pw*]
+#   Create list password.
+#   *Optional* (defaults to create)
 #
 # === Examples
 #
@@ -60,6 +68,8 @@ class mailman (
   $site_list       = 'mailman',
   $site_list_admin = "root@${::fqdn}",
   $site_list_pw    = 'initial',
+  $master_list_pw  = 'master',
+  $create_list_pw  = 'create',
 ) {
 
   validate_string($url_pattern)
@@ -70,6 +80,9 @@ class mailman (
   validate_string($site_list)
   validate_string($site_list_admin)
   validate_string($site_list_pw)
+  validate_string($site_list_pw)
+  validate_string($master_list_pw)
+  validate_string($create_list_pw)
 
 
   contain(mailman::install)

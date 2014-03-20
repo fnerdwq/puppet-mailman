@@ -15,6 +15,10 @@
 ##Overview
 
 This small mailman module installs and configures mailman.
+Apache should be installed first (for Postfix 'www-data' has to 
+exists).
+
+Working on Debian wheezy.
 
 Written for Puppet >= 3.4.0.
 
@@ -57,5 +61,7 @@ Puppet Version >= 3.4.0, due to specific hiera/*contain* usage.
 ##TODOs:
 
 * Make it work on RedHat like systems.
+* Include apache configuration?
+* Dependency on www-data user should be cleaner.
 * Make more configurable.
 * ... suggestions? Open an issue on github...
