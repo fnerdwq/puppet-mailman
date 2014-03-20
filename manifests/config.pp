@@ -21,7 +21,7 @@ class mailman::config {
     unless    => "list_lists -b | grep -q '^${site_list}$'",
     path      => ['/bin', '/usr/sbin'],
     require   => File['/etc/mailman/mm_cfg.py'],
-    notify    => Exec['set master password', '/etc/mailman/mm_cfg.py'],
+    notify    => Exec['set master password', 'set create-list password'],
   }
 
   # only initially create master/site liste pw
