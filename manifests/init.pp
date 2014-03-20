@@ -27,6 +27,11 @@
 #   mm_cfg.py MTA setting
 #   *Optional* (defaults to undef)
 #
+# [*smtpport*]
+#   Optional smtp port for delivery through SMTPDirect
+#   Usefull for AMaViS usage (set it to 10025 then)
+#   *Optional* (defaults to undef)
+#
 # [*site_list*]
 #   Name of site list to create.
 #   *Optional* (defaults to mailman)
@@ -65,6 +70,7 @@ class mailman (
   $url_host        = $::fqdn,
   $server_language = 'en',
   $mta             = undef,
+  $smtpport        = undef,
   $site_list       = 'mailman',
   $site_list_admin = "root@${::fqdn}",
   $site_list_pw    = 'initial',
@@ -76,7 +82,6 @@ class mailman (
   validate_string($email_host)
   validate_string($url_host)
   validate_string($server_language)
-  validate_string($mta)
   validate_string($site_list)
   validate_string($site_list_admin)
   validate_string($site_list_pw)

@@ -6,6 +6,7 @@ class mailman::config {
   $url_host        = $mailman::url_host
   $server_language = $mailman::server_language
   $mta             = $mailman::mta
+  $smtpport        = $mailman::smtpport
   $site_list       = $mailman::site_list
 
   file { '/etc/mailman/mm_cfg.py':
