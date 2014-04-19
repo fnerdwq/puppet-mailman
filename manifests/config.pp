@@ -55,4 +55,17 @@ class mailman::config {
     groups +> $mailman::group,
   }
 
+  # Correct group for private archives (Debian bug?)
+  #   from apache to mailman group
+  # This should be fixed in mailman! This only dirty fixes it, after a mailing list is
+  #   created and puppet ran afterwards!
+  if $::osfamily == 'Debian' {
+    file { '/var/lib/mailman/archives/private':
+      ensure  => directory,
+      recurse => true,
+      group   => $mailman::group,
+      mode    => '2660',
+    }
+  }
+
 }
