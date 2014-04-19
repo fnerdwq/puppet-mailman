@@ -64,7 +64,6 @@ class mailman::config {
       ensure  => directory,
       recurse => true,
       group   => $mailman::group,
-      mode    => '2660',
     }
   }
 
