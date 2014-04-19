@@ -39,23 +39,7 @@ class mailman::config {
     require     => File['/etc/mailman/mm_cfg.py'],
   }
 
-  # ensure correct right's on alias.db, otherwise mailman website cannot
-  # create lists (bug in Debian?)
-  if $mta == 'Postfix' {
-
-    # we have to have apache included here
-    include apache
-
-    file {'/var/lib/mailman/data/aliases.db':
-      ensure  => present,
-      owner   => $mailman::apache_user,
-      group   => $mailman::group,
-      mode    => '0660',
-      require => [ Exec['create site list'], Class['apache'] ],
-    }
-  }
-
-  # ensure that apache user is in mailman group
+  # ensure that apache user is in mailman group !
   User<| title == $mailman::apache_user |> {
     groups +> $mailman::group,
   }
