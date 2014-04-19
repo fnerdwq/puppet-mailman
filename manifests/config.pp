@@ -39,7 +39,18 @@ class mailman::config {
     require     => File['/etc/mailman/mm_cfg.py'],
   }
 
-  # ensure that apache user is in mailman group !
+  # ensure correct right's on alias.db, otherwise mailman website cannot
+  # create lists (root list creation, creates 0640 alias.db!)
+  if $mta == 'Postfix' {
+
+    file {'/var/lib/mailman/data/aliases.db':
+      ensure  => present,
+      mode    => '0660',
+      require => [ Exec['create site list'] ],
+    }
+  }
+
+  # ensure that apache user is in mailman group
   User<| title == $mailman::apache_user |> {
     groups +> $mailman::group,
   }
