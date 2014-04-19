@@ -52,6 +52,14 @@
 #   Create list password.
 #   *Optional* (defaults to create)
 #
+# [*group*]
+#   Group the mailman runs under.
+#   *Optional* (default depends on OS)
+#
+# [*apache_user*]
+#   User Apache runs under.
+#   *Optional* (default depends on OS)
+#
 # === Examples
 #
 # include mailman
@@ -76,7 +84,9 @@ class mailman (
   $site_list_pw    = 'initial',
   $master_list_pw  = 'master',
   $create_list_pw  = 'create',
-) {
+  $group           = $mailman::params::group,
+  $apache_group    = $mailman::params::apache_group,
+) inherits mailman::params {
 
   validate_string($url_pattern)
   validate_string($email_host)
