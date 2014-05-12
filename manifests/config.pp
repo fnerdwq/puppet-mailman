@@ -4,7 +4,7 @@ class mailman::config {
   $url_pattern        = $mailman::url_pattern
   $email_host         = $mailman::email_host
   $url_host           = $mailman::url_host
-  $public_archive_url = $mailman::public_archiv_url
+  $public_archive_url = $mailman::public_archive_url
   $server_language    = $mailman::server_language
   $mta                = $mailman::mta
   $smtpport           = $mailman::smtpport
