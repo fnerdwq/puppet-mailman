@@ -113,3 +113,8 @@ MTA='<%= @mta %>'
 SMTPPORT = <%= @smtpport %>
 <% end -%>
 
+<% if @public_archive_url -%>
+# The url template for the public archives.
+PUBLIC_ARCHIVE_URL = <%= @public_archive_url %>
+<% end -%>
+

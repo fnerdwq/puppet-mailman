@@ -32,6 +32,10 @@
 #   Usefull for AMaViS usage (set it to 10025 then)
 #   *Optional* (defaults to undef)
 #
+# [*public_archive_url*]
+#   The url template for the public archives.
+#   *Optional* (defaults to undef)
+#
 # [*site_list*]
 #   Name of site list to create.
 #   *Optional* (defaults to mailman)
@@ -73,25 +77,27 @@
 # Copyright 2014 Frederik Wagner
 #
 class mailman (
-  $url_pattern     = 'http://%s/cgi-bin/mailman/',
-  $email_host      = $::fqdn,
-  $url_host        = $::fqdn,
-  $server_language = 'en',
-  $mta             = undef,
-  $smtpport        = undef,
-  $site_list       = 'mailman',
-  $site_list_admin = "root@${::fqdn}",
-  $site_list_pw    = 'initial',
-  $master_list_pw  = 'master',
-  $create_list_pw  = 'create',
-  $group           = $mailman::params::group,
-  $apache_group    = $mailman::params::apache_group,
+  $url_pattern        = 'http://%s/cgi-bin/mailman/',
+  $email_host         = $::fqdn,
+  $url_host           = $::fqdn,
+  $server_language    = 'en',
+  $mta                = undef,
+  $smtpport           = undef,
+  $public_archive_url = undef,
+  $site_list          = 'mailman',
+  $site_list_admin    = "root@${::fqdn}",
+  $site_list_pw       = 'initial',
+  $master_list_pw     = 'master',
+  $create_list_pw     = 'create',
+  $group              = $mailman::params::group,
+  $apache_group       = $mailman::params::apache_group,
 ) inherits mailman::params {
 
   validate_string($url_pattern)
   validate_string($email_host)
   validate_string($url_host)
   validate_string($server_language)
+  validate_string($public_archive_url)
   validate_string($site_list)
   validate_string($site_list_admin)
   validate_string($site_list_pw)
