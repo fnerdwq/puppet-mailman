@@ -95,7 +95,7 @@ DEFAULT_SEND_REMINDERS = 0
 # /usr/share/doc/mailman/README.Debian first.
 # MTA='Postfix'
 <% if @mta -%>
-MTA='<%= @mta %>'
+MTA='<%= @mta -%>'
 <% end -%>
 
 #-------------------------------------------------------------
@@ -106,15 +106,15 @@ MTA='<%= @mta %>'
 
 # Note - if you're looking for something that is imported from mm_cfg, but you
 # didn't find it above, it's probably in /usr/lib/mailman/Mailman/Defaults.py.
-
 <% if @smtpport -%>
+
 # Here you can feed back mail to a different port (when using the default 
 # SMTPDirect DELIVERY_MODULE)
 SMTPPORT = <%= @smtpport %>
 <% end -%>
-
 <% if @public_archive_url -%>
+
 # The url template for the public archives.
-PUBLIC_ARCHIVE_URL = <%= @public_archive_url %>
+PUBLIC_ARCHIVE_URL = '<%= @public_archive_url -%>'
 <% end -%>
 
