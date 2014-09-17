@@ -59,10 +59,15 @@ Puppet::Type.type(:mailman_listconfig).provide :mailman do
   end
 
   def create
-# setzen alle parameter?
+    if    @resource[:owner].nil? or @resource[:owner].empty? \
+       or @resource[:password].nil? or  @resource[:password].empty?
+      fail('Password an Owner must be given to create Mailinglist!')
+    end
+
     newlist(@resource[:name], @resource[:owner][0], @resource[:password])
     @property_hash[:ensure] = :present
 
+# setzen alle parameter?
     properties = [:real_name,
                   :owner,
                   :moderator,

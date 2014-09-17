@@ -4,10 +4,15 @@ Puppet::Type.newtype(:mailman_listconfig) do
 
   desc 'mailman_listconfig configures a Mailman mailing lists'
 
+  autorequire(:package) do
+    ['mailman']
+  end
+
   ensurable
 
   newparam(:name, :namevar => true) do
     desc 'Name of the mailinglist'
+    munge { |value| value.downcase }
   end
 
   newparam(:password) do
@@ -15,14 +20,24 @@ Puppet::Type.newtype(:mailman_listconfig) do
   end
 
   newproperty(:real_name) do
-# bis aus Schreibung wie name!!!!
+    # can only differ by case from :name
+    validate { |value|
+      fail('\'real_name\' has to equal the lists \'name\', except for the case') \
+        unless value.downcase == resource.name.downcase
+    }
   end
 
   newproperty(:owner, :array_matching => :all) do
 # MUSS Bei Anlegen!
+    # 'simple' email regex
+    newvalues(/^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,4})$/i)
+    munge { |value| value.downcase }
   end
 
   newproperty(:moderator, :array_matching => :all) do
+    # 'simple' email regex
+    newvalues(/^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,4})$/i)
+    munge { |value| value.downcase }
   end
 
   newproperty(:description) do
