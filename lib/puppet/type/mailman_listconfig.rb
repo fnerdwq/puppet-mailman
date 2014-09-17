@@ -1,3 +1,5 @@
+require 'puppet/property/boolean'
+
 Puppet::Type.newtype(:mailman_listconfig) do
 
   desc 'mailman_listconfig configures a Mailman mailing lists'
@@ -32,8 +34,10 @@ Puppet::Type.newtype(:mailman_listconfig) do
   newproperty(:subject_prefix) do
   end
   
-  newproperty(:send_welcome_msg, :boolean => true) do
-    newvalues(:true, :false)
+  newproperty(:send_welcome_msg, :boolean => true, :parent => Puppet::Property::Boolean) do
+    def munge(value)
+      super ? 1 : 0
+    end
   end
 
   newproperty(:max_message_size) do
@@ -45,12 +49,16 @@ Puppet::Type.newtype(:mailman_listconfig) do
   newproperty(:accept_these_nonmembers, :array_matching => :all) do
   end
 
-  newproperty(:require_explicit_destination, :boolean => true) do
-    newvalues(:true, :false)
+  newproperty(:require_explicit_destination, :boolean => true, :parent => Puppet::Property::Boolean) do
+    def munge(value)
+      super ? 1 : 0
+    end
   end
 
-  newproperty(:archive, :boolean => true) do
-    newvalues(:true, :false)
+  newproperty(:archive, :boolean => true, :parent => Puppet::Property::Boolean) do
+    def munge(value)
+      super ? 1 : 0
+    end
   end
 
 end

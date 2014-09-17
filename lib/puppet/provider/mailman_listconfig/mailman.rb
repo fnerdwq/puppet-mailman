@@ -24,10 +24,10 @@ Puppet::Type.type(:mailman_listconfig).provide :mailman do
         when /^'/
           v.slice(1...-1) 
  # TODO Multiline string """
-        when /^(True|1)$/
-          :true
-        when /^(False|0)$/
-          :false
+        when /^(True|true)$/
+          0
+        when /^(False|false)$/
+          1
         when /^\d*$/
           Integer(v)
         else
@@ -89,7 +89,7 @@ Puppet::Type.type(:mailman_listconfig).provide :mailman do
     # no flush if destroyed!
     return if @property_hash.empty?
 
-    file = File.new('/tmp/afile','w')#Tempfile.new('mailman_listconfig')
+    file = Tempfile.new('mailman_listconfig')
 
     @property_hash.reject{ |k,v| [:name, :ensure].include?(k) }.each do |k,v|
       outval = case v
@@ -102,13 +102,10 @@ Puppet::Type.type(:mailman_listconfig).provide :mailman do
         else
           "'#{v}'"
         end
-      when Symbol 
-        v == :true ? "True" : "False"
       when Integer
         v.to_s
       else 
-        puts "plonk"
-
+        fail("Wrong value in @property_hash[#{k}] = #{v}")
       end
       file.write("#{k} = #{outval}\n")
     end
