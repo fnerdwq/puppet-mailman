@@ -60,6 +60,10 @@
 #   Create this lists (via maillist_config type).
 #   *Optional* (defaults to {})
 #
+# [*lists_defaults*]
+#   Default parameters vor lists parameter.
+#   *Optional* (defaults to {})
+#
 # [*group*]
 #   Group the mailman runs under.
 #   *Optional* (default depends on OS)
@@ -94,6 +98,7 @@ class mailman (
   $master_list_pw     = $mailman::params::master_list_pw,
   $create_list_pw     = $mailman::params::create_list_pw,
   $lists              = $mailman::params::lists,
+  $lists_defaults     = $mailman::params::lists_defaults,
   $group              = $mailman::params::group,
   $apache_group       = $mailman::params::apache_group,
 ) inherits mailman::params {
@@ -110,6 +115,7 @@ class mailman (
   validate_string($master_list_pw)
   validate_string($create_list_pw)
   validate_hash($lists)
+  validate_hash($lists_defaults)
   validate_string($group)
   validate_string($apache_group)
 

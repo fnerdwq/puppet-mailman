@@ -14,6 +14,7 @@ class mailman::params {
   $master_list_pw     = 'master'
   $create_list_pw     = 'create'
   $lists              = {}
+  $lists_defaults     = {}
 
   case $::osfamily {
     'Debian': {
