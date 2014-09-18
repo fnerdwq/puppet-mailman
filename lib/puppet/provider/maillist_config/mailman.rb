@@ -23,19 +23,23 @@ Puppet::Type.type(:maillist_config).provide :mailman do
       ]
       config.each do |k,v|
         config[k] = case v
+        # Array
         when /^\[/
           # reset encoding
           # TODO Understand why....
           v.slice(1...-1).split(', ').map{ |e| e.slice(1...-1).force_encoding('UTF-8') }
+        # String
+ # TODO parse multiline string with """
         when /^'|"/
           # reset encoding
           # TODO Understand why....
           v.slice(1...-1).force_encoding('UTF-8')
- # TODO parse multiline string with """
+        # Boolean (map to Interger)
         when /^(True|true)$/
           1
         when /^(False|false)$/
           0
+        # Integer
         when /^\d*$/
           Integer(v)
         else
@@ -67,7 +71,7 @@ Puppet::Type.type(:maillist_config).provide :mailman do
   end
 
   def create
-    if    @resource[:owner].nil? or @resource[:owner].empty? \
+    if    @resource[:owner].nil?    or @resource[:owner].empty? \
        or @resource[:password].nil? or  @resource[:password].empty?
       fail('Password an Owner must be given to create Mailinglist!')
     end
@@ -118,6 +122,13 @@ Puppet::Type.type(:maillist_config).provide :mailman do
     config_list('--inputfile', file.path, @resource[:name])
     file.unlink
   end
+
+  # special getter/setters
+  def available_languages
+    # compare sorted
+    @property_hash[:available_languages].sort
+  end
+
 
 end
 

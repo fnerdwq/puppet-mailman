@@ -2,6 +2,15 @@ require 'puppet/property/boolean'
 
 Puppet::Type.newtype(:maillist_config) do
 
+  def initialize(*args)
+    super
+
+    # globaly munge some properties
+    # 'available_languages' always has to include 'en' and the :preferred_language, sorted
+     self[:available_languages] = \
+       [ self[:available_languages], 'en', self[:preferred_language] ].flatten.compact.sort
+  end
+
   desc 'maillist_config configures a Mailman mailing lists'
 
   autorequire(:package) do
@@ -56,13 +65,10 @@ Puppet::Type.newtype(:maillist_config) do
   end
 
   newproperty(:max_message_size) do
-    munge do |value|
-      Integer(value)
-    end
+    munge { |value| Integer(value) }
   end
 
   newproperty(:preferred_language) do
-#    validate { |value| fail("ASDF") unless self[:available_language].downcase.include?(value.downcase) }
   end
 
   newproperty(:available_languages, :array_matching => :all) do
@@ -71,10 +77,23 @@ Puppet::Type.newtype(:maillist_config) do
   newproperty(:accept_these_nonmembers, :array_matching => :all) do
   end
 
+  newproperty(:generic_nonmember_action) do
+# TODO validate 0..3?
+    munge { |value| Integer(value) }
+  end
+
   newproperty(:require_explicit_destination, :boolean => true, :parent => Puppet::Property::Boolean) do
     def munge(value)
       super ? 1 : 0
     end
+  end
+
+  newproperty(:acceptable_aliases) do
+# TODO multiline match
+  end
+
+  newproperty(:max_num_recipients) do
+    munge { |value| Integer(value) }
   end
 
   newproperty(:archive, :boolean => true, :parent => Puppet::Property::Boolean) do
