@@ -121,11 +121,15 @@ class mailman (
 
   contain(mailman::install)
   contain(mailman::config)
+  contain(mailman::listconfig)
   contain(mailman::service)
 
   Class['mailman::install']
   -> Class['mailman::config']
   ~> Class['mailman::service']
+
+  Class['mailman::config'] ->
+  Class['mailman::listconfig']
 
 }
 
