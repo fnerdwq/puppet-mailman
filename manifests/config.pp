@@ -9,6 +9,7 @@ class mailman::config {
   $mta                = $mailman::mta
   $smtpport           = $mailman::smtpport
   $site_list          = $mailman::site_list
+  $lists              = $mailman::lists
 
   file { '/etc/mailman/mm_cfg.py':
     content => template('mailman/mm_cfg.py.erb'),
@@ -67,5 +68,7 @@ class mailman::config {
       group   => $mailman::group,
     }
   }
+
+  create_resources('maillist_config',$lists, {})
 
 }

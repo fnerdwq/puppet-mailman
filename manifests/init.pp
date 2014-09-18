@@ -56,6 +56,10 @@
 #   Create list password.
 #   *Optional* (defaults to create)
 #
+# [*lists*]
+#   Create this lists (via maillist_config type).
+#   *Optional* (defaults to {})
+#
 # [*group*]
 #   Group the mailman runs under.
 #   *Optional* (default depends on OS)
@@ -89,6 +93,7 @@ class mailman (
   $site_list_pw       = 'initial',
   $master_list_pw     = 'master',
   $create_list_pw     = 'create',
+  $lists              = {},
   $group              = $mailman::params::group,
   $apache_group       = $mailman::params::apache_group,
 ) inherits mailman::params {
@@ -104,7 +109,7 @@ class mailman (
   validate_string($site_list_pw)
   validate_string($master_list_pw)
   validate_string($create_list_pw)
-
+  validate_string($lists)
 
   contain(mailman::install)
   contain(mailman::config)
