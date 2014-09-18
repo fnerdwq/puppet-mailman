@@ -48,7 +48,7 @@ Puppet::Type.newtype(:maillist_config) do
 
   newproperty(:subject_prefix) do
   end
-  
+
   newproperty(:send_welcome_msg, :boolean => true, :parent => Puppet::Property::Boolean) do
     def munge(value)
       super ? 1 : 0
