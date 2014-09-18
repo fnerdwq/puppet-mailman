@@ -109,7 +109,9 @@ class mailman (
   validate_string($site_list_pw)
   validate_string($master_list_pw)
   validate_string($create_list_pw)
-  validate_string($lists)
+  validate_hash($lists)
+  validate_string($group)
+  validate_string($apache_group)
 
   contain(mailman::install)
   contain(mailman::config)
