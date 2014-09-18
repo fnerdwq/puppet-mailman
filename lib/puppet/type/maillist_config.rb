@@ -1,8 +1,8 @@
 require 'puppet/property/boolean'
 
-Puppet::Type.newtype(:mailman_listconfig) do
+Puppet::Type.newtype(:maillist_config) do
 
-  desc 'mailman_listconfig configures a Mailman mailing lists'
+  desc 'maillist_config configures a Mailman mailing lists'
 
   autorequire(:package) do
     ['mailman']
@@ -59,6 +59,13 @@ Puppet::Type.newtype(:mailman_listconfig) do
     munge do |value|
       Integer(value)
     end
+  end
+
+  newproperty(:preferred_language) do
+#    validate { |value| fail("ASDF") unless self[:available_language].downcase.include?(value.downcase) }
+  end
+
+  newproperty(:available_languages, :array_matching => :all) do
   end
 
   newproperty(:accept_these_nonmembers, :array_matching => :all) do

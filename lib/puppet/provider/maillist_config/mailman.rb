@@ -1,4 +1,4 @@
-Puppet::Type.type(:mailman_listconfig).provide :mailman do
+Puppet::Type.type(:maillist_config).provide :mailman do
   commands :newlist     => 'newlist',
            :rmlist      => '/var/lib/mailman/bin/rmlist',
            :list_lists  => '/var/lib/mailman/bin/list_lists',
@@ -9,9 +9,14 @@ Puppet::Type.type(:mailman_listconfig).provide :mailman do
   def self.instances 
     lists = list_lists('--bare').split(/\n/)
     lists.collect do |list|
+      cl = config_list('--outputfile','-', list)
+# TODO aufraumen
+      enc = cl[17..43].match(/-*- coding: (\S*) /).captures[0].upcase
+ p enc
+      clOK =  cl.to_s.force_encoding(enc).encode("UTF-8")
+
       config = Hash[
-        config_list('--outputfile','-', list)
-          .split(/\n/)
+        clOK.split(/\n/)
           .reject{ |c| c =~ /^#|^$/ }
           .map{ |c| k, v = c.split(' = '); 
                     [k.to_sym, v] 
@@ -23,7 +28,7 @@ Puppet::Type.type(:mailman_listconfig).provide :mailman do
           v.slice(1...-1).split(', ').map{ |e| e.slice(1...-1) }
         when /^'/
           v.slice(1...-1) 
- # TODO Multiline string """
+ # TODO parse multiline string with """
         when /^(True|true)$/
           0
         when /^(False|false)$/
@@ -46,7 +51,7 @@ Puppet::Type.type(:mailman_listconfig).provide :mailman do
   end
 
   def self.prefetch(lists)
-#### sinnvoll fuer alle?
+### TODO load only relevant instance
     instances.each do |prov|
       if list = lists[prov.name]
         list.provider = prov
@@ -67,20 +72,10 @@ Puppet::Type.type(:mailman_listconfig).provide :mailman do
     newlist(@resource[:name], @resource[:owner][0], @resource[:password])
     @property_hash[:ensure] = :present
 
-# setzen alle parameter?
-    properties = [:real_name,
-                  :owner,
-                  :moderator,
-                  :description,
-                  :info,
-                  :subject_prefix, 
-                  :send_welcome_msg,
-                  :accept_these_nonmembers,
-                  :require_explicit_destination,
-                  :archive
-    ]
-    properties.each { |p|
-      @property_hash[p] = @resource[p] unless @resource[p].nil?
+# TODO can I access the type or the types name directly?
+    Puppet::Type.type(:maillist_config).properties.each { |p| 
+      @property_hash[p.name] = @resource[p.name] \
+        unless @resource[p.name].nil? or p.name == :ensure
     }
   end
 
@@ -94,15 +89,19 @@ Puppet::Type.type(:mailman_listconfig).provide :mailman do
     # no flush if destroyed!
     return if @property_hash.empty?
 
-    file = Tempfile.new('mailman_listconfig')
+    file = File.new('/tmp/asdf','w')
+#Tempfile.new('maillist_config')
+    file.write("# -*- python -*-
+                # -*- coding: UTF-8 -*-\N")
 
     @property_hash.reject{ |k,v| [:name, :ensure].include?(k) }.each do |k,v|
       outval = case v
       when Array 
         v
       when String 
+# TODO encoding
         if v.include?("\n")
-# TODO indentation!!!
+# TODO indentation of newlines
           "\"\"\"#{v}\"\"\""
         else
           "'#{v}'"
