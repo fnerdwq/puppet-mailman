@@ -6,43 +6,46 @@ Puppet::Type.type(:maillist_config).provide :mailman do
 
   mk_resource_methods
 
-  def self.instances 
+  def self.instances
     lists = list_lists('--bare').split(/\n/)
     lists.collect do |list|
       cl = config_list('--outputfile','-', list)
-# TODO aufraumen
+      # filter encoding
       enc = cl[17..43].match(/-*- coding: (\S*) /).captures[0].upcase
- p enc
-      clOK =  cl.to_s.force_encoding(enc).encode("UTF-8")
-
+      # force string to encoding
+      cl_enc = cl.to_s.force_encoding(enc)
       config = Hash[
-        clOK.split(/\n/)
+        cl_enc.split(/\n/)
           .reject{ |c| c =~ /^#|^$/ }
-          .map{ |c| k, v = c.split(' = '); 
-                    [k.to_sym, v] 
+          .map{ |c| k, v = c.split(' = ');
+                [k.to_sym, v ]
               }
       ]
       config.each do |k,v|
         config[k] = case v
         when /^\[/
-          v.slice(1...-1).split(', ').map{ |e| e.slice(1...-1) }
-        when /^'/
-          v.slice(1...-1) 
+          # reset encoding
+          # TODO Understand why....
+          v.slice(1...-1).split(', ').map{ |e| e.slice(1...-1).force_encoding('UTF-8') }
+        when /^'|"/
+          # reset encoding
+          # TODO Understand why....
+          v.slice(1...-1).force_encoding('UTF-8')
  # TODO parse multiline string with """
         when /^(True|true)$/
-          0
-        when /^(False|false)$/
           1
+        when /^(False|false)$/
+          0
         when /^\d*$/
           Integer(v)
         else
           # also for multiline parameters, which we ignore here
-          nil 
+          nil
         end
       end
       config.delete_if{ |k,v| v.nil?}
 
-      new({ 
+      new({
           :name           => list,
           :ensure         => :present,
          }.merge(config)
@@ -72,15 +75,14 @@ Puppet::Type.type(:maillist_config).provide :mailman do
     newlist(@resource[:name], @resource[:owner][0], @resource[:password])
     @property_hash[:ensure] = :present
 
-# TODO can I access the type or the types name directly?
-    Puppet::Type.type(:maillist_config).properties.each { |p| 
-      @property_hash[p.name] = @resource[p.name] \
-        unless @resource[p.name].nil? or p.name == :ensure
+  self.class.resource_type.validproperties.each { |p|
+      @property_hash[p] = @resource[p] \
+        unless @resource[p].nil? or p == :ensure
     }
   end
 
   def destroy
-# purge? archives?
+# TODO purge? archives?
     rmlist(@resource[:name])
     @property_hash.clear
   end
@@ -89,16 +91,14 @@ Puppet::Type.type(:maillist_config).provide :mailman do
     # no flush if destroyed!
     return if @property_hash.empty?
 
-    file = File.new('/tmp/asdf','w')
-#Tempfile.new('maillist_config')
-    file.write("# -*- python -*-
-                # -*- coding: UTF-8 -*-\N")
+    file = Tempfile.new(self.class.resource_type.name.to_s)
+    file.write("# -*- python -*-\n# -*- coding: UTF-8 -*-\n")
 
     @property_hash.reject{ |k,v| [:name, :ensure].include?(k) }.each do |k,v|
       outval = case v
-      when Array 
+      when Array
         v
-      when String 
+      when String
 # TODO encoding
         if v.include?("\n")
 # TODO indentation of newlines
@@ -108,7 +108,7 @@ Puppet::Type.type(:maillist_config).provide :mailman do
         end
       when Integer
         v.to_s
-      else 
+      else
         fail("Wrong value in @property_hash[#{k}] = #{v}")
       end
       file.write("#{k} = #{outval}\n")
