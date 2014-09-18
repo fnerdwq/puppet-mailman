@@ -7,8 +7,10 @@ Puppet::Type.newtype(:maillist_config) do
 
     # globaly munge some properties
     # 'available_languages' always has to include 'en' and the :preferred_language, sorted
-     self[:available_languages] = \
-       [ self[:available_languages], 'en', self[:preferred_language] ].flatten.compact.sort.uniq
+    self[:available_languages] = \
+      [ self[:available_languages], 'en', self[:preferred_language] ].flatten.compact.sort.uniq
+    # sort members
+    self[:members] = self[:members].sort unless self[:members].nil?
   end
 
   desc 'maillist_config configures a Mailman mailing lists'
@@ -100,6 +102,12 @@ Puppet::Type.newtype(:maillist_config) do
     def munge(value)
       super ? 1 : 0
     end
+  end
+
+  newproperty(:members, :array_matching => :all) do
+    # 'simple' email regex
+    newvalues(/^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,4})$/i)
+    munge { |value| value.downcase }
   end
 
 end

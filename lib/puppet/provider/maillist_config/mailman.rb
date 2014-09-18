@@ -1,8 +1,10 @@
 Puppet::Type.type(:maillist_config).provide :mailman do
-  commands :newlist     => 'newlist',
-           :rmlist      => '/var/lib/mailman/bin/rmlist',
-           :list_lists  => '/var/lib/mailman/bin/list_lists',
-           :config_list => '/var/lib/mailman/bin/config_list'
+  commands :newlist      => 'newlist',
+           :rmlist       => '/var/lib/mailman/bin/rmlist',
+           :list_lists   => '/var/lib/mailman/bin/list_lists',
+           :config_list  => '/var/lib/mailman/bin/config_list',
+           :sync_members => '/var/lib/mailman/bin/sync_members',
+           :list_members => '/var/lib/mailman/bin/list_members'
 
   mk_resource_methods
 
@@ -49,9 +51,13 @@ Puppet::Type.type(:maillist_config).provide :mailman do
       end
       config.delete_if{ |k,v| v.nil?}
 
+      # get members
+      members = list_members(list).split(/\n/).sort
+
       new({
           :name           => list,
           :ensure         => :present,
+          :members        => members
          }.merge(config)
       )
     end
@@ -98,7 +104,7 @@ Puppet::Type.type(:maillist_config).provide :mailman do
     file = Tempfile.new(self.class.resource_type.name.to_s)
     file.write("# -*- python -*-\n# -*- coding: UTF-8 -*-\n")
 
-    @property_hash.reject{ |k,v| [:name, :ensure].include?(k) }.each do |k,v|
+    @property_hash.reject{ |k,v| [:name, :ensure, :members].include?(k) }.each do |k,v|
       outval = case v
       when Array
         v
@@ -120,7 +126,15 @@ Puppet::Type.type(:maillist_config).provide :mailman do
     file.close
 
     config_list('--inputfile', file.path, @resource[:name])
-    file.unlink
+    file.unlink 
+   
+    # sync members to list
+    file_mem = Tempfile.new(self.class.resource_type.name.to_s)
+    file_mem.write(@property_hash[:members].join("\n"))
+    file_mem.close
+
+    sync_members('-f', file_mem.path, @resource[:name])
+    file_mem.unlink
   end
 
   # special getter/setters
@@ -128,7 +142,6 @@ Puppet::Type.type(:maillist_config).provide :mailman do
     # compare sorted
     @property_hash[:available_languages].sort
   end
-
 
 end
 
