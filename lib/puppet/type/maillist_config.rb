@@ -8,7 +8,7 @@ Puppet::Type.newtype(:maillist_config) do
     # globaly munge some properties
     # 'available_languages' always has to include 'en' and the :preferred_language, sorted
      self[:available_languages] = \
-       [ self[:available_languages], 'en', self[:preferred_language] ].flatten.compact.sort
+       [ self[:available_languages], 'en', self[:preferred_language] ].flatten.compact.sort.uniq
   end
 
   desc 'maillist_config configures a Mailman mailing lists'
