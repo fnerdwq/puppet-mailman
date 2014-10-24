@@ -67,4 +67,38 @@ class mailman::config {
       group   => $mailman::group,
     }
   }
+
+  # install backup for maillist members?
+  if $mailman::backup_members {
+    $backup_members_dir = $mailman::backup_members_dir
+
+    file { $backup_members_dir:
+      ensure => directory,
+      owner  => root,
+      group  => $mailman::group,
+      mode   => '0770',
+    }
+
+    $backup_members_script = '/usr/local/bin/mailman_backup_members.sh'
+    file { $backup_members_script:
+      content => template('mailman/mailman_backup_members.sh.erb'),
+      owner   => root,
+      group   => $mailman::group,
+      mode    => '0775',
+    }
+
+    cron { 'backup mailman members':
+      command  => $backup_members_script,
+      user     => $mailman::user,
+      minute   => '0',
+      hour     => '2',
+      monthday => absent,
+      month    => absent,
+      weekday  => absent,
+      special  => absent,
+      require  => File[$backup_members_dir, $backup_members_script],
+    }
+
+  }
+
 }

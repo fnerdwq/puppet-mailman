@@ -15,13 +15,17 @@ class mailman::params {
   $create_list_pw     = 'create'
   $lists              = {}
   $lists_defaults     = {}
+  $backup_members     = false
+  $backup_members_dir = '/var/lib/mailman/backup'
 
   case $::osfamily {
     'Debian': {
+      $user  = 'list'
       $group = 'list'
       $apache_user = 'www-data'
     }
     'RedHat': {
+      $user  = 'mailman'
       $group = 'mailman'
       $apache_user = 'apache'
     }

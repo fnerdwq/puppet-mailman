@@ -64,13 +64,25 @@
 #   Default parameters vor lists parameter.
 #   *Optional* (defaults to {})
 #
+# [*user*]
+#   User the mailman runs under.
+#   *Optional* (default depends on OS)
+#
 # [*group*]
 #   Group the mailman runs under.
 #   *Optional* (default depends on OS)
 #
-# [*apache_user*]
-#   User Apache runs under.
+# [*apache_group*]
+#   Group Apache runs under.
 #   *Optional* (default depends on OS)
+#
+# [*backup_members*]
+#   Install cron script, which dayly backups members.
+#   *Optional* (defaults to false)
+#
+# [*backup_members_dir*]
+#   Where the member backup files are stored.
+#   *Optional* (defaults to /var/lib/mailman/backup)
 #
 # === Examples
 #
@@ -99,8 +111,11 @@ class mailman (
   $create_list_pw     = $mailman::params::create_list_pw,
   $lists              = $mailman::params::lists,
   $lists_defaults     = $mailman::params::lists_defaults,
+  $user               = $mailman::params::user,
   $group              = $mailman::params::group,
   $apache_group       = $mailman::params::apache_group,
+  $backup_members     = $mailman::params::backup_members,
+  $backup_members_dir = $mailman::params::backup_members_dir,
 ) inherits mailman::params {
 
   validate_string($url_pattern)
@@ -116,8 +131,11 @@ class mailman (
   validate_string($create_list_pw)
   validate_hash($lists)
   validate_hash($lists_defaults)
+  validate_string($user)
   validate_string($group)
   validate_string($apache_group)
+  validate_bool($backup_members)
+  validate_absolute_path($backup_members_dir)
 
   contain(mailman::install)
   contain(mailman::config)

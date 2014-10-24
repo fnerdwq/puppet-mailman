@@ -1,0 +1,11 @@
+#!/bin/bash
+# Managed by puppet.
+
+MM_BIN='/var/lib/mailman/bin'
+MM_BACKUP_DIR='<%= @backup_members_dir -%>'
+
+lists=`${MM_BIN}/list_lists --bare`
+for list in $lists
+do
+    ${MM_BIN}/list_members $list > ${MM_BACKUP_DIR}/${list}.members
+done
