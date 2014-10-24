@@ -51,14 +51,11 @@ Puppet::Type.newtype(:maillist_config) do
     munge { |value| value.downcase }
   end
 
-  newproperty(:description) do
-  end
+  newproperty(:description) {}
 
-  newproperty(:info) do
-  end
+  newproperty(:info) {}
 
-  newproperty(:subject_prefix) do
-  end
+  newproperty(:subject_prefix) {}
 
   newproperty(:send_welcome_msg, :boolean => true, :parent => Puppet::Property::Boolean) do
     def munge(value)
@@ -70,14 +67,11 @@ Puppet::Type.newtype(:maillist_config) do
     munge { |value| Integer(value) }
   end
 
-  newproperty(:preferred_language) do
-  end
+  newproperty(:preferred_language) {}
 
-  newproperty(:available_languages, :array_matching => :all) do
-  end
+  newproperty(:available_languages, :array_matching => :all) {}
 
-  newproperty(:accept_these_nonmembers, :array_matching => :all) do
-  end
+  newproperty(:accept_these_nonmembers, :array_matching => :all) {}
 
   newproperty(:generic_nonmember_action) do
 # TODO validate 0..3?
@@ -90,9 +84,8 @@ Puppet::Type.newtype(:maillist_config) do
     end
   end
 
-  newproperty(:acceptable_aliases) do
 # TODO multiline match
-  end
+  newproperty(:acceptable_aliases) {}
 
   newproperty(:max_num_recipients) do
     munge { |value| Integer(value) }

@@ -15,14 +15,35 @@ Puppet::Type.type(:maillist_config).provide :mailman do
       # filter encoding
       enc = cl[17..43].match(/-*- coding: (\S*) /).captures[0].upcase
       # force string to encoding
-      cl_enc = cl.to_s.force_encoding(enc)
-      config = Hash[
-        cl_enc.split(/\n/)
-          .reject{ |c| c =~ /^#|^$/ }
-          .map{ |c| k, v = c.split(' = ');
-                [k.to_sym, v ]
-              }
-      ]
+      lines = cl.to_s.force_encoding(enc).split(/\n/)
+
+      # parse configuration
+      config = {}
+      for i in 0...lines.length do
+        line = lines[i]
+
+        # skip comments
+        next if line =~ /^\s*#/
+        # skip lines not containint '='
+        #   does not catch multiline strings, see next part
+        next if line !~ /=/
+
+        key, val = line.split(' = ')
+
+        # collect all lines of a multiline string
+        if val =~ /^"""/
+          j = 0
+          begin
+            j += 1
+            val << "\n" << lines[i+j]
+          end until lines[i+j] =~ /"""$/
+        end
+
+        # collect into hash
+        config[key.to_sym] = val
+      end
+
+      # convert configuation
       config.each do |k,v|
         config[k] = case v
         # Array
@@ -31,8 +52,11 @@ Puppet::Type.type(:maillist_config).provide :mailman do
           # TODO Understand why....
           v.slice(1...-1).split(', ').map{ |e| e.slice(1...-1).force_encoding('UTF-8') }
         # String
- # TODO parse multiline string with """
-        when /^'|"/
+        when /^"""/
+          # reset encoding
+          # TODO Understand why....
+          v.slice(3...-3).force_encoding('UTF-8')
+        when /^'|"[^"]/
           # reset encoding
           # TODO Understand why....
           v.slice(1...-1).force_encoding('UTF-8')
@@ -126,8 +150,8 @@ Puppet::Type.type(:maillist_config).provide :mailman do
     file.close
 
     config_list('--inputfile', file.path, @resource[:name])
-    file.unlink 
-   
+    file.unlink
+
     # sync members to list
     file_mem = Tempfile.new(self.class.resource_type.name.to_s)
     file_mem.write(@property_hash[:members].join("\n"))
